@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Carbon Ranker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .badge {
+            @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+        }
+        .badge-green { @apply bg-green-100 text-green-800; }
+        .badge-yellow { @apply bg-yellow-100 text-yellow-800; }
+        .badge-red { @apply bg-red-100 text-red-800; }
+        .badge-blue { @apply bg-blue-100 text-blue-800; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">🤖 Agentic AI Carbon Ranker</h1>
+                    <p class="text-gray-600 mt-1">Intelligent vendor carbon efficiency ranking</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        🔄 Refresh
+                    </button>
+                    <button onclick="showProcessingStatus()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                        📊 Processing Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Summary Cards -->
+        <div id="summary-cards" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Cards will be populated by JavaScript -->
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="bg-white rounded-lg shadow-sm border">
+            <div class="px-6 py-4 border-b">
+                <h2 class="text-xl font-semibold text-gray-900">🏆 Vendor Leaderboard</h2>
+                <p class="text-gray-600 mt-1">Ranked by Green Score (higher is better)</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Green Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">tCO₂e</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">gCO₂/1k tokens</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tokens/tCO₂e</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Quality</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Company Detail Modal -->
+    <div id="company-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="px-6 py-4 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 id="modal-title" class="text-xl font-semibold text-gray-900">Company Details</h3>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="modal-content" class="p-6">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Status Modal -->
+    <div id="processing-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="px-6 py-4 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-900">🤖 Agent Processing Status</h3>
+                        <button onclick="closeProcessingModal()" class="text-gray-400 hover:text-gray-600">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="processing-content" class="p-6">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+        });
+
+        async function refreshData() {
+            try {
+                // Load leaderboard
+                const leaderboardResponse = await fetch('/api/leaderboard');
+                const leaderboardData = await leaderboardResponse.json();
+                
+                if (leaderboardData.error) {
+                    console.error('Error loading leaderboard:', leaderboardData.error);
+                    return;
+                }
+
+                currentData = leaderboardData;
+                renderLeaderboard(leaderboardData);
+                
+                // Load summary metrics
+                const summaryResponse = await fetch('/api/metrics/summary');
+                const summaryData = await summaryResponse.json();
+                renderSummaryCards(summaryData);
+
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }
+
+        function renderSummaryCards(data) {
+            const container = document.getElementById('summary-cards');
+            
+            if (data.error) {
+                container.innerHTML = '<div class="col-span-4 text-center text-gray-500">No data available</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Companies</p>
+                            <p class="text-2xl font-semibold text-gray-900">${data.summary.total_companies}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total tCO₂e</p>
+                            <p class="text-2xl font-semibold text-gray-900">${data.summary.total_tco2e}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Avg Utilization</p>
+                            <p class="text-2xl font-semibold text-gray-900">${data.summary.avg_utilization}%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Avg Data Quality</p>
+                            <p class="text-2xl font-semibold text-gray-900">${data.summary.avg_data_quality}%</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLeaderboard(data) {
+            const tbody = document.getElementById('leaderboard-body');
+            
+            if (!data.leaderboard || data.leaderboard.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-500">No data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.leaderboard.map(company => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                                company.rank === 1 ? 'bg-yellow-100 text-yellow-800' :
+                                company.rank === 2 ? 'bg-gray-100 text-gray-800' :
+                                company.rank === 3 ? 'bg-orange-100 text-orange-800' :
+                                'bg-blue-100 text-blue-800'
+                            }">
+                                ${company.rank}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${company.company}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: ${company.green_score}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-900">${company.green_score}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${company.tco2e}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${company.g_per_1k_tokens ? company.g_per_1k_tokens : 'N/A'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${company.tokens_per_tco2e ? company.tokens_per_tco2e.toLocaleString() : 'N/A'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${company.utilization}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-900">${company.utilization}%</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="badge ${
+                            company.data_quality >= 90 ? 'badge-green' :
+                            company.data_quality >= 70 ? 'badge-yellow' :
+                            'badge-red'
+                        }">
+                            ${company.data_quality}%
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="showCompanyDetails('${company.company}')" 
+                                class="text-blue-600 hover:text-blue-900">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function showCompanyDetails(companyName) {
+            try {
+                const response = await fetch(`/api/company/${encodeURIComponent(companyName)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error loading company details: ' + data.error);
+                    return;
+                }
+
+                document.getElementById('modal-title').textContent = `${companyName} - Detailed Metrics`;
+                
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Ranking Overview -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">🏆 Ranking Overview</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-600">#${data.ranking.overall_rank}</div>
+                                    <div class="text-sm text-gray-600">Overall Rank</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-600">${data.ranking.green_score}</div>
+                                    <div class="text-sm text-gray-600">Green Score</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-yellow-600">${data.metrics.data_quality}%</div>
+                                    <div class="text-sm text-gray-600">Data Quality</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Metrics -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white p-4 border rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3">🌍 Carbon Metrics</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total tCO₂e:</span>
+                                        <span class="font-medium">${data.metrics.tco2e}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total kWh:</span>
+                                        <span class="font-medium">${data.metrics.total_kwh}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">gCO₂/1k tokens:</span>
+                                        <span class="font-medium">${data.metrics.g_per_1k_tokens || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Tokens/tCO₂e:</span>
+                                        <span class="font-medium">${data.metrics.tokens_per_tco2e ? data.metrics.tokens_per_tco2e.toLocaleString() : 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 border rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-3">⚡ Efficiency Metrics</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Utilization:</span>
+                                        <span class="font-medium">${data.metrics.utilization_avg}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">PUE Used:</span>
+                                        <span class="font-medium">${data.rollup ? data.rollup.pue_used : 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Tokens:</span>
+                                        <span class="font-medium">${data.rollup ? data.rollup.total_tokens.toLocaleString() : 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">API Calls:</span>
+                                        <span class="font-medium">${data.rollup ? data.rollup.total_api_calls.toLocaleString() : 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Processing Log -->
+                        <div class="bg-white p-4 border rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-3">🤖 Agent Processing Log</h4>
+                            <div class="space-y-2 max-h-40 overflow-y-auto">
+                                ${data.processing_log.map(log => `
+                                    <div class="flex justify-between items-center text-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="badge badge-blue">${log.stage}</span>
+                                            <span class="text-gray-600">${log.action}</span>
+                                        </div>
+                                        <div class="text-gray-500">${log.timestamp}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('company-modal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading company details:', error);
+                alert('Error loading company details');
+            }
+        }
+
+        async function showProcessingStatus() {
+            try {
+                const response = await fetch('/api/processing/status');
+                const data = await response.json();
+
+                document.getElementById('processing-content').innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Processing Statistics -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">${data.processing_stats.total_processed}</div>
+                                <div class="text-sm text-gray-600">Total Processed</div>
+                            </div>
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-yellow-600">${data.processing_stats.retry_count}</div>
+                                <div class="text-sm text-gray-600">Retry Attempts</div>
+                            </div>
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-red-600">${data.processing_stats.error_count}</div>
+                                <div class="text-sm text-gray-600">Errors</div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="bg-white border rounded-lg">
+                            <div class="px-4 py-3 border-b">
+                                <h4 class="text-lg font-semibold text-gray-900">Recent Agent Activity</h4>
+                            </div>
+                            <div class="divide-y divide-gray-200">
+                                ${data.recent_activity.map(activity => `
+                                    <div class="px-4 py-3">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex items-center space-x-3">
+                                                <span class="badge badge-blue">${activity.stage}</span>
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">${activity.company}</div>
+                                                    <div class="text-sm text-gray-600">${activity.action}</div>
+                                                    <div class="text-xs text-gray-500">${activity.details}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs text-gray-500">${activity.timestamp}</div>
+                                                ${activity.retry_count > 0 ? `<div class="text-xs text-yellow-600">Retry #${activity.retry_count}</div>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('processing-modal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading processing status:', error);
+                alert('Error loading processing status');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('company-modal').classList.add('hidden');
+        }
+
+        function closeProcessingModal() {
+            document.getElementById('processing-modal').classList.add('hidden');
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('company-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('processing-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProcessingModal();
+            }
+        });
+    </script>
+</body>
+</html>
