@@ -2,12 +2,16 @@
 API routes for the Carbon Ranker dashboard
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from ..database.init_db import get_db
-from ..database.models import Rankings, MonthlyCompanyRollup, NormalizedEvents, ProcessingLog
+from ..database.models import Rankings, MonthlyCompanyRollup, NormalizedEvents, ProcessingLog, RawIngest
 import json
+import pandas as pd
+import io
+import time
+from datetime import datetime
 
 router = APIRouter()
 
@@ -241,3 +245,272 @@ async def get_processing_status(db: Session = Depends(get_db)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    format: str = Form("csv"),
+    auto_process: bool = Form(True),
+    overwrite_existing: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    """Upload and process vendor data file"""
+    start_time = time.time()
+    
+    try:
+        # Validate file
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file provided")
+        
+        # Check file size (10MB limit)
+        content = await file.read()
+        if len(content) > 10 * 1024 * 1024:  # 10MB
+            raise HTTPException(status_code=400, detail="File size exceeds 10MB limit")
+        
+        # Validate file extension
+        file_extension = file.filename.split('.')[-1].lower()
+        allowed_extensions = ['csv', 'json', 'xlsx', 'xls']
+        if file_extension not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
+            )
+        
+        # Parse file based on format
+        try:
+            if file_extension == 'csv':
+                df = pd.read_csv(io.StringIO(content.decode('utf-8')))
+            elif file_extension == 'json':
+                df = pd.read_json(io.StringIO(content.decode('utf-8')))
+            elif file_extension in ['xlsx', 'xls']:
+                df = pd.read_excel(io.BytesIO(content))
+            else:
+                raise HTTPException(status_code=400, detail="Unsupported file format")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error parsing file: {str(e)}")
+        
+        # Validate required columns
+        required_columns = ['company', 'month', 'region']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Missing required columns: {', '.join(missing_columns)}"
+            )
+        
+        # Process the data
+        records_processed = 0
+        companies_added = set()
+        warnings = []
+        
+        for _, row in df.iterrows():
+            try:
+                # Check if record already exists
+                existing = db.query(RawIngest).filter(
+                    RawIngest.company == row['company'],
+                    RawIngest.month == row['month']
+                ).first()
+                
+                if existing and not overwrite_existing:
+                    warnings.append(f"Record for {row['company']} ({row['month']}) already exists, skipping")
+                    continue
+                
+                # Create or update raw ingest record
+                raw_data = {
+                    'company': str(row['company']),
+                    'month': str(row['month']),
+                    'region': str(row['region']),
+                    'gpu_hours_raw': str(row.get('gpu_hours', '')),
+                    'energy_raw': str(row.get('energy', '')),
+                    'tokens_raw': str(row.get('tokens', '')),
+                    'api_calls_raw': str(row.get('api_calls', '')),
+                    'pue_raw': str(row.get('pue', '')),
+                    'utilization_raw': str(row.get('utilization', '')),
+                    'processed': False
+                }
+                
+                if existing and overwrite_existing:
+                    # Update existing record
+                    for key, value in raw_data.items():
+                        setattr(existing, key, value)
+                    existing.created_at = datetime.now()
+                else:
+                    # Create new record
+                    raw_record = RawIngest(**raw_data)
+                    db.add(raw_record)
+                
+                records_processed += 1
+                companies_added.add(row['company'])
+                
+            except Exception as e:
+                warnings.append(f"Error processing row for {row.get('company', 'unknown')}: {str(e)}")
+                continue
+        
+        # Commit changes
+        db.commit()
+        
+        # Auto-process if requested
+        if auto_process and records_processed > 0:
+            try:
+                from ..agent.carbon_ranker import CarbonRankerAgent
+                agent = CarbonRankerAgent()
+                await agent.process_all_data()
+            except Exception as e:
+                warnings.append(f"Auto-processing failed: {str(e)}")
+        
+        processing_time = f"{time.time() - start_time:.2f}s"
+        
+        return {
+            "success": True,
+            "records_processed": records_processed,
+            "companies_added": len(companies_added),
+            "processing_time": processing_time,
+            "warnings": warnings,
+            "message": f"Successfully uploaded {records_processed} records for {len(companies_added)} companies"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+@router.post("/reset")
+async def reset_leaderboard(db: Session = Depends(get_db)):
+    """Reset the leaderboard by clearing all data"""
+    try:
+        # Clear all tables in order (respecting foreign key constraints)
+        db.query(Rankings).delete()
+        db.query(MonthlyCompanyRollup).delete()
+        db.query(NormalizedEvents).delete()
+        db.query(ProcessingLog).delete()
+        db.query(RawIngest).delete()
+        
+        db.commit()
+        
+        return {"message": "Leaderboard reset successfully", "success": True}
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error resetting leaderboard: {str(e)}")
+
+@router.post("/upload-messy-data")
+async def upload_messy_data(
+    file: UploadFile = File(...),
+    add_to_ranking: str = Form("false"),
+    db: Session = Depends(get_db)
+):
+    """Upload messy data file and process it through LLM cleaning pipeline"""
+    try:
+        # Check file type
+        if not file.filename.endswith(('.json', '.csv', '.txt', '.pdf')):
+            raise HTTPException(status_code=400, detail="Only JSON, CSV, TXT, and PDF files are supported")
+        
+        # Read file content
+        content = await file.read()
+        
+        # Parse based on file type
+        if file.filename.endswith('.json'):
+            try:
+                messy_data = json.loads(content.decode('utf-8'))
+                if not isinstance(messy_data, list):
+                    messy_data = [messy_data]
+            except json.JSONDecodeError as e:
+                raise HTTPException(status_code=400, detail=f"Invalid JSON format: {str(e)}")
+        elif file.filename.endswith('.csv'):
+            try:
+                df = pd.read_csv(io.StringIO(content.decode('utf-8')))
+                messy_data = df.to_dict('records')
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Invalid CSV format: {str(e)}")
+        elif file.filename.endswith('.txt'):
+            try:
+                text_content = content.decode('utf-8')
+                # Convert text to structured data for LLM processing
+                messy_data = [{"raw_text": text_content, "filename": file.filename}]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Invalid text file: {str(e)}")
+        elif file.filename.endswith('.pdf'):
+            try:
+                import PyPDF2
+                import pdfplumber
+                
+                # Try pdfplumber first (better for text extraction)
+                try:
+                    with pdfplumber.open(io.BytesIO(content)) as pdf:
+                        text_content = ""
+                        for page in pdf.pages:
+                            text_content += page.extract_text() or ""
+                except:
+                    # Fallback to PyPDF2
+                    pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
+                    text_content = ""
+                    for page in pdf_reader.pages:
+                        text_content += page.extract_text()
+                
+                if not text_content.strip():
+                    raise HTTPException(status_code=400, detail="No text content found in PDF")
+                
+                # Convert PDF text to structured data for LLM processing
+                messy_data = [{"raw_text": text_content, "filename": file.filename}]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Error reading PDF: {str(e)}")
+        
+        # Initialize LLM cleaner
+        from ..llm_agents.data_cleaner import LLMDataCleaner
+        import os
+        
+        api_key = os.getenv('ANTHROPIC_API_KEY')
+        if not api_key:
+            raise HTTPException(status_code=500, detail="LLM cleaning not available - no API key configured")
+        
+        llm_cleaner = LLMDataCleaner(api_key)
+        
+        # Clean the data
+        print(f"Processing {len(messy_data)} messy records...")
+        cleaned_data = llm_cleaner.clean_messy_data(messy_data)
+        
+        if not cleaned_data:
+            raise HTTPException(status_code=500, detail="LLM cleaning failed - no data returned")
+        
+        # Get cleaning stats
+        stats = llm_cleaner.get_cleaning_stats()
+        
+        # Convert string to boolean
+        add_to_ranking_bool = add_to_ranking.lower() == 'true'
+        
+        result = {
+            "success": True,
+            "message": f"Successfully processed {len(cleaned_data)} records",
+            "cleaning_stats": stats,
+            "records_processed": len(cleaned_data),
+            "clean_csv": llm_cleaner.generate_clean_csv_data(cleaned_data),
+            "add_to_ranking": add_to_ranking_bool
+        }
+        
+        # Only add to ranking pool if requested
+        if add_to_ranking_bool:
+            # Store cleaned data in database
+            from ..agent.carbon_ranker import CarbonRankerAgent
+            agent = CarbonRankerAgent()
+            
+            # Store the cleaned data
+            await agent._store_cleaned_data(cleaned_data, "manual_upload")
+            
+            # Process through normal pipeline
+            print("Processing through normal pipeline...")
+            await agent._generate_monthly_rollups()
+            await agent._generate_rankings()
+            
+            result["ranking_updated"] = True
+            result["message"] += " and added to ranking pool"
+        else:
+            result["ranking_updated"] = False
+            result["message"] += " (not added to ranking pool)"
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing messy data: {str(e)}")

@@ -9,44 +9,44 @@ import os
 
 def install_requirements():
     """Install required packages"""
-    print("📦 Installing requirements...")
+        print("Installing requirements...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-        print("✅ Requirements installed successfully")
+        print("Requirements installed successfully")
     except subprocess.CalledProcessError as e:
-        print(f"❌ Error installing requirements: {e}")
+        print(f"Error installing requirements: {e}")
         return False
     return True
 
 def run_demo():
     """Run the demo script"""
-    print("\n🚀 Running Carbon Ranker Demo...")
+    print("\nRunning Carbon Ranker Demo...")
     try:
         subprocess.run([sys.executable, "demo.py"])
     except KeyboardInterrupt:
-        print("\n⏹️ Demo interrupted by user")
+        print("\nDemo interrupted by user")
     except Exception as e:
-        print(f"❌ Error running demo: {e}")
+        print(f"Error running demo: {e}")
 
 def start_server():
     """Start the web server"""
-    print("\n🌐 Starting web server...")
+    print("\nStarting web server...")
     print("Dashboard will be available at: http://localhost:8000")
     try:
         subprocess.run([sys.executable, "main.py"])
     except KeyboardInterrupt:
-        print("\n⏹️ Server stopped by user")
+        print("\nServer stopped by user")
     except Exception as e:
-        print(f"❌ Error starting server: {e}")
+        print(f"Error starting server: {e}")
 
 def main():
     """Main startup function"""
-    print("🤖 Agentic AI Carbon Ranker MVP")
+    print("Carbon AI MVP")
     print("=" * 40)
     
     # Check if we're in the right directory
     if not os.path.exists("main.py"):
-        print("❌ Please run this script from the Carbon-AI directory")
+        print("Please run this script from the Carbon-AI directory")
         return
     
     # Install requirements

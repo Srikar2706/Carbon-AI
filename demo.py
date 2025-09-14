@@ -39,12 +39,12 @@ class CarbonRankerDemo:
         # Step 5: Show procurement decision
         await self._show_procurement_story()
         
-        print("\n✅ Demo completed successfully!")
-        print("🌐 Open http://localhost:8000 to view the dashboard")
+        print("\nDemo completed successfully!")
+        print("Open http://localhost:8000 to view the dashboard")
     
     async def _show_messy_inputs(self):
         """Step 1: Display messy vendor data"""
-        print("\n📊 STEP 1: Messy Vendor Data Input")
+        print("\nSTEP 1: Messy Vendor Data Input")
         print("-" * 40)
         
         # Generate and show sample of mock data
@@ -76,7 +76,7 @@ class CarbonRankerDemo:
     
     async def _run_agent_processing(self):
         """Step 2: Run the agentic processing"""
-        print("\n🤖 STEP 2: Agentic Processing (Planner → Executor → Critic)")
+        print("\nSTEP 2: Agentic Processing (Planner → Executor → Critic)")
         print("-" * 60)
         
         print("Initializing database and loading data...")
@@ -89,14 +89,14 @@ class CarbonRankerDemo:
         await self.agent.process_all_data()
         
         end_time = time.time()
-        print(f"✅ Processing completed in {end_time - start_time:.2f} seconds")
+        print(f"Processing completed in {end_time - start_time:.2f} seconds")
         
         # Show processing statistics
         total_processed = self.db.query(RawIngest).count()
         retry_count = self.db.query(ProcessingLog).filter(ProcessingLog.retry_count > 0).count()
         error_count = self.db.query(ProcessingLog).filter(ProcessingLog.success == False).count()
         
-        print(f"\n📈 Processing Statistics:")
+        print(f"\nProcessing Statistics:")
         print(f"  • Total records processed: {total_processed}")
         print(f"  • Records requiring retry: {retry_count}")
         print(f"  • Processing errors: {error_count}")
@@ -105,7 +105,7 @@ class CarbonRankerDemo:
     
     async def _show_rankings(self):
         """Step 3: Display vendor rankings"""
-        print("\n🏆 STEP 3: Vendor Rankings & Green Scores")
+        print("\nSTEP 3: Vendor Rankings & Green Scores")
         print("-" * 50)
         
         # Get latest rankings
@@ -138,7 +138,7 @@ class CarbonRankerDemo:
     
     async def _demonstrate_retries(self):
         """Step 4: Show retry scenarios"""
-        print("\n🔄 STEP 4: Agent Retry Scenarios")
+        print("\nSTEP 4: Agent Retry Scenarios")
         print("-" * 40)
         
         # Get processing logs with retries
@@ -158,7 +158,7 @@ class CarbonRankerDemo:
             print("No retry scenarios found in this run")
         
         # Show data quality improvements
-        print("\n📊 Data Quality Improvements:")
+        print("\nData Quality Improvements:")
         print("  • Missing energy → Imputed from GPU hours")
         print("  • Unknown regions → Market average grid intensity")
         print("  • Invalid PUE → Default 1.3 applied")
@@ -190,11 +190,18 @@ class CarbonRankerDemo:
         
         # Make recommendation
         best_vendor = top_vendors[0]
-        print(f"\n🎯 Recommendation: {best_vendor.company}")
+        print(f"\nRecommendation: {best_vendor.company}")
         print(f"   • Highest Green Score: {best_vendor.green_score:.1f}/100")
         print(f"   • Lowest carbon intensity per token")
         print(f"   • High data quality: {best_vendor.data_quality:.1f}%")
-        print(f"   • Estimated annual savings: {((top_vendors[1].tco2e - best_vendor.tco2e) * 12):.2f} tCO₂e")
+        
+        # Only show savings comparison if there are multiple vendors
+        if len(top_vendors) > 1:
+            second_best = top_vendors[1]
+            savings = ((second_best.tco2e - best_vendor.tco2e) * 12)
+            print(f"   • Estimated annual savings vs 2nd place: {savings:.2f} tCO₂e")
+        else:
+            print(f"   • Only one vendor in dataset - no comparison available")
         
         print(f"\n💡 Key Insights:")
         print(f"   • Agent successfully normalized {len(self.db.query(RawIngest).all())} messy records")

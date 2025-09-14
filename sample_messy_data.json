@@ -1,0 +1,35 @@
+[
+  {
+    "company": "amazon",
+    "timestamp": "December 26, 2024",
+    "region": "us-east-1a",
+    "gpu_hours_raw": "1500 GPU hours",
+    "energy_consumption": "12000 KWH",
+    "utilization_percent": "85%",
+    "pue_factor": "PUE: 1.2",
+    "tokens_processed": "2.8B tokens",
+    "api_calls": "15000 API calls"
+  },
+  {
+    "vendor": "MICROSOFT",
+    "date": "2024/12",
+    "location": "East US",
+    "compute_hours": "2000 compute hours",
+    "power_usage": "15000 kilowatt-hours",
+    "efficiency": "78% efficiency",
+    "power_usage_effectiveness": "1.4",
+    "tokens_generated": "3.5B tokens",
+    "api_requests": "12000 requests"
+  },
+  {
+    "provider": "GOOGLE",
+    "time": "2024-12-26T10:30:00Z",
+    "zone": "US Central",
+    "gpu_utilization": "1800 GPU hours used",
+    "energy_consumed": "9500 kWh",
+    "utilization_rate": "82%",
+    "pue": "1.15",
+    "tokens_processed": "4.2B tokens",
+    "api_calls_made": "18000 calls"
+  }
+]

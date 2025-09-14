@@ -14,23 +14,75 @@
         .badge-yellow { @apply bg-yellow-100 text-yellow-800; }
         .badge-red { @apply bg-red-100 text-red-800; }
         .badge-blue { @apply bg-blue-100 text-blue-800; }
+        
+        /* Dark mode badge styles - Force visibility */
+        .dark .badge-green { 
+            background-color: #064e3b !important; 
+            color: #ffffff !important; 
+        }
+        .dark .badge-yellow { 
+            background-color: #78350f !important; 
+            color: #ffffff !important; 
+        }
+        .dark .badge-red { 
+            background-color: #7f1d1d !important; 
+            color: #ffffff !important; 
+        }
+        .dark .badge-blue { 
+            background-color: #1e3a8a !important; 
+            color: #ffffff !important; 
+        }
+        
+        /* Dark mode toggle button */
+        .dark-mode-toggle {
+            transition: all 0.3s ease;
+        }
+        
+        /* Smooth transitions for dark mode */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        /* FORCE DARK MODE ONLY */
+        html, body {
+            background-color: #111827 !important;
+            color: #f9fafb !important;
+        }
+        
+        /* Always dark mode - no light mode */
+        html, body, html.dark, body.dark {
+            background-color: #111827 !important;
+            color: #f9fafb !important;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="dark bg-gray-900">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
+    <header class="bg-gray-800 shadow-sm border-b border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-6">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">🤖 Agentic AI Carbon Ranker</h1>
-                    <p class="text-gray-600 mt-1">Intelligent vendor carbon efficiency ranking</p>
+                    <h1 class="text-3xl font-bold text-white">Carbon AI</h1>
+                    <p class="text-gray-300 mt-1">Intelligent vendor carbon efficiency ranking</p>
                 </div>
                 <div class="flex space-x-4">
-                    <button onclick="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        🔄 Refresh
+                    <button onclick="showFileUpload()" class="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                        Upload Clean Data
                     </button>
-                    <button onclick="showProcessingStatus()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                        📊 Processing Status
+                    <button onclick="refreshData()" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                        Refresh
+                    </button>
+                    <button onclick="showProcessingStatus()" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                        Processing Status
+                    </button>
+                    <button onclick="showChatInterface()" class="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600">
+                        Ask AI
+                    </button>
+                    <button onclick="showDataCleaner()" class="bg-orange-700 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                        Data Cleaner
+                    </button>
+                    <button onclick="resetLeaderboard()" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                        Reset
                     </button>
                 </div>
             </div>
@@ -45,27 +97,27 @@
         </div>
 
         <!-- Leaderboard -->
-        <div class="bg-white rounded-lg shadow-sm border">
-            <div class="px-6 py-4 border-b">
-                <h2 class="text-xl font-semibold text-gray-900">🏆 Vendor Leaderboard</h2>
-                <p class="text-gray-600 mt-1">Ranked by Green Score (higher is better)</p>
+        <div class="bg-gray-800 rounded-lg shadow-sm border border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-700">
+                <h2 class="text-xl font-semibold text-white">Vendor Leaderboard</h2>
+                <p class="text-gray-300 mt-1">Ranked by Green Score (higher is better)</p>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-700">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Green Score</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">tCO₂e</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">gCO₂/1k tokens</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tokens/tCO₂e</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Quality</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Company</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Green Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">tCO₂e</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">gCO₂/1k tokens</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tokens/tCO₂e</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Utilization</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data Quality</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200">
+                    <tbody id="leaderboard-body" class="bg-gray-800 divide-y divide-gray-700">
                         <!-- Rows will be populated by JavaScript -->
                     </tbody>
                 </table>
@@ -74,13 +126,13 @@
     </main>
 
     <!-- Company Detail Modal -->
-    <div id="company-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div id="company-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="px-6 py-4 border-b">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto dark:bg-gray-800">
+                <div class="px-6 py-4 border-b dark:border-gray-700">
                     <div class="flex justify-between items-center">
-                        <h3 id="modal-title" class="text-xl font-semibold text-gray-900">Company Details</h3>
-                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <h3 id="modal-title" class="text-xl font-semibold text-gray-900 dark:text-white">Company Details</h3>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
                             <span class="sr-only">Close</span>
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -96,13 +148,13 @@
     </div>
 
     <!-- Processing Status Modal -->
-    <div id="processing-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div id="processing-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div class="px-6 py-4 border-b">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto dark:bg-gray-800">
+                <div class="px-6 py-4 border-b dark:border-gray-700">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-xl font-semibold text-gray-900">🤖 Agent Processing Status</h3>
-                        <button onclick="closeProcessingModal()" class="text-gray-400 hover:text-gray-600">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Agent Processing Status</h3>
+                        <button onclick="closeProcessingModal()" class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
                             <span class="sr-only">Close</span>
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -117,7 +169,364 @@
         </div>
     </div>
 
+    <!-- Chat Interface Modal -->
+    <div id="chat-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full h-[80vh] flex flex-col">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-white">Carbon AI Helper</h3>
+                        <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-300">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-gray-300 text-sm mt-1">Ask questions about your carbon efficiency data and rankings</p>
+                </div>
+                
+                <!-- Chat Messages Area -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">AI</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-3 max-w-3xl">
+                            <p class="text-white text-sm">Hello! I'm your Carbon AI Helper. I can help you analyze your carbon efficiency data, explain rankings, and answer questions about vendor performance. What would you like to know?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Input Area -->
+                <div class="border-t border-gray-700 p-4">
+                    <div class="flex space-x-3">
+                        <input 
+                            type="text" 
+                            id="chat-input" 
+                            placeholder="Ask about carbon efficiency, rankings, or vendor performance..."
+                            class="flex-1 bg-gray-700 text-white placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            onkeypress="handleChatKeyPress(event)"
+                        >
+                        <button 
+                            onclick="sendChatMessage()" 
+                            id="chat-send-btn"
+                            class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Send
+                        </button>
+                    </div>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button onclick="askQuickQuestion('Which vendor has the best green score?')" class="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600">
+                            Best Green Score?
+                        </button>
+                        <button onclick="askQuickQuestion('What is the total carbon footprint?')" class="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600">
+                            Total Carbon Footprint?
+                        </button>
+                        <button onclick="askQuickQuestion('Which vendor has the lowest emissions?')" class="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600">
+                            Lowest Emissions?
+                        </button>
+                        <button onclick="askQuickQuestion('Explain the data quality scores')" class="text-xs bg-gray-700 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-600">
+                            Data Quality?
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Cleaner Upload Modal -->
+    <div id="dataCleanerModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full h-[90vh] flex flex-col">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-white">Data Cleaner</h3>
+                        <button onclick="closeDataCleanerModal()" class="text-gray-400 hover:text-gray-300">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-gray-300 text-sm mt-1">Upload messy data files and transform them into clean, structured format</p>
+                </div>
+
+                <!-- Upload Status with Progress Bar -->
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <div id="dataCleanerStatus" class="text-center">
+                        <div class="text-gray-400">Upload a file to get started</div>
+                    </div>
+
+                    <!-- Dynamic Progress Bar -->
+                    <div id="progressContainer" class="mt-4 hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-300" id="progressLabel">Processing...</span>
+                            <span class="text-sm text-gray-300" id="progressPercent">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3">
+                            <div id="progressBar" class="bg-gradient-to-r from-orange-500 to-green-500 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-400" id="progressDetails">Ready to process data...</div>
+                    </div>
+
+                    <!-- Visual Process Status -->
+                    <div id="processStatusContainer" class="mt-4 hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div id="statusUpload" class="text-center">
+                                <div class="bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2">
+                                    <span class="text-white text-sm">1</span>
+                                </div>
+                                <p class="text-xs text-gray-400">Upload</p>
+                            </div>
+                            <div id="statusParse" class="text-center">
+                                <div class="bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2">
+                                    <span class="text-white text-sm">2</span>
+                                </div>
+                                <p class="text-xs text-gray-400">Parse</p>
+                            </div>
+                            <div id="statusClean" class="text-center">
+                                <div class="bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2">
+                                    <span class="text-white text-sm">3</span>
+                                </div>
+                                <p class="text-xs text-gray-400">Clean</p>
+                            </div>
+                            <div id="statusRank" class="text-center">
+                                <div class="bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2">
+                                    <span class="text-white text-sm">4</span>
+                                </div>
+                                <p class="text-xs text-gray-400">Rank</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Interface -->
+                <div class="flex-1 overflow-y-auto p-6">
+                    <div id="dataCleanerContent" class="space-y-6">
+                        <!-- File Upload Section -->
+                        <div class="bg-gray-700 p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold text-white mb-4">Upload Messy Data</h4>
+                            
+                            <!-- File Upload Area -->
+                            <div class="border-2 border-dashed border-gray-500 rounded-lg p-8 text-center hover:border-orange-500 transition-colors">
+                                <input type="file" id="messyDataFile" accept=".json,.csv,.txt,.pdf" class="hidden" onchange="handleFileSelect(event)">
+                                <div id="uploadArea" onclick="document.getElementById('messyDataFile').click()" class="cursor-pointer">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <p class="text-gray-300 mb-2">Click to upload or drag and drop</p>
+                                    <p class="text-gray-400 text-sm">JSON, CSV, TXT, or PDF files</p>
+                                </div>
+                            </div>
+                            
+                            <!-- File Info -->
+                            <div id="fileInfo" class="mt-4 hidden">
+                                <div class="bg-gray-800 p-4 rounded">
+                                    <h5 class="font-semibold text-white mb-2">Selected File:</h5>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-300" id="fileName"></span>
+                                        <span class="text-gray-400 text-sm" id="fileSize"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Processing Options -->
+                            <div class="mt-6">
+                                <div class="bg-gray-800 p-4 rounded">
+                                    <h5 class="font-semibold text-white mb-3">Processing Options</h5>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="addToRanking" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-gray-300">Add cleaned data to ranking pool</span>
+                                        </label>
+                                        <p class="text-gray-400 text-sm">If checked, cleaned data will be automatically processed and added to the leaderboard</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload Button -->
+                            <div class="mt-6 text-center">
+                                <button id="uploadButton" onclick="uploadMessyData()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    🚀 Process Data
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Pipeline Overview -->
+                        <div class="bg-gray-700 p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold text-white mb-4">Processing Pipeline</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="bg-orange-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-white font-bold">1</span>
+                                    </div>
+                                    <h5 class="font-semibold text-orange-400 mb-1">Upload</h5>
+                                    <p class="text-gray-300 text-sm">Upload messy JSON/CSV file</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-white font-bold">2</span>
+                                    </div>
+                                    <h5 class="font-semibold text-blue-400 mb-1">Clean</h5>
+                                    <p class="text-gray-300 text-sm">LLM processes and normalizes data</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-white font-bold">3</span>
+                                    </div>
+                                    <h5 class="font-semibold text-purple-400 mb-1">Process</h5>
+                                    <p class="text-gray-300 text-sm">Data flows through carbon pipeline</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-white font-bold">4</span>
+                                    </div>
+                                    <h5 class="font-semibold text-green-400 mb-1">Rank</h5>
+                                    <p class="text-gray-300 text-sm">Results appear in leaderboard</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div id="resultsSection" class="hidden">
+                            <div class="bg-gray-700 p-6 rounded-lg">
+                                <h4 class="text-lg font-semibold text-white mb-4">Processing Results</h4>
+                                <div id="resultsContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div id="upload-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-75 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full dark:bg-gray-800">
+                <div class="px-6 py-4 border-b dark:border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Upload Vendor Data</h3>
+                        <button onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <!-- File Upload Area -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Select Data File
+                                </label>
+                                <button type="button" onclick="downloadTemplate()" class="text-sm text-blue-600 hover:text-blue-800 underline">
+                                    Download Sample Template
+                                </button>
+                            </div>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                                <div class="space-y-1 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Upload a file</span>
+                                            <input id="file-upload" name="file" type="file" class="sr-only" accept=".csv,.json,.xlsx,.xls" onchange="handleFileSelect(event)">
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">CSV, JSON, Excel files up to 10MB</p>
+                                </div>
+                            </div>
+                            <div id="file-info" class="mt-2 text-sm text-gray-600 hidden">
+                                <!-- File info will be displayed here -->
+                            </div>
+                        </div>
+
+                        <!-- File Format Options -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Data Format
+                            </label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="format" value="csv" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                                    <span class="ml-2 text-sm text-gray-700">CSV (Comma-separated values)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="format" value="json" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">JSON (JavaScript Object Notation)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="format" value="excel" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">Excel (.xlsx, .xls)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Processing Options -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Processing Options
+                            </label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="auto_process" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+                                    <span class="ml-2 text-sm text-gray-700">Automatically process data after upload</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="overwrite_existing" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Overwrite existing data for same companies</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div id="upload-progress" class="mb-6 hidden">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Uploading...</span>
+                                <span id="upload-percentage">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Upload Results -->
+                        <div id="upload-results" class="mb-6 hidden">
+                            <!-- Results will be displayed here -->
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                Cancel
+                            </button>
+                            <button type="submit" id="upload-button" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Upload & Process
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // FORCE DARK MODE IMMEDIATELY - Run before DOM loads
+        (function() {
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        })();
+
         let currentData = null;
 
         // Load data on page load
@@ -132,12 +541,14 @@
                 const leaderboardData = await leaderboardResponse.json();
                 
                 if (leaderboardData.error) {
-                    console.error('Error loading leaderboard:', leaderboardData.error);
-                    return;
+                    console.log('No leaderboard data available:', leaderboardData.error);
+                    // Show empty state instead of returning
+                    currentData = { leaderboard: [], month: 'N/A' };
+                    renderLeaderboard(currentData);
+                } else {
+                    currentData = leaderboardData;
+                    renderLeaderboard(leaderboardData);
                 }
-
-                currentData = leaderboardData;
-                renderLeaderboard(leaderboardData);
                 
                 // Load summary metrics
                 const summaryResponse = await fetch('/api/metrics/summary');
@@ -158,58 +569,58 @@
             }
 
             container.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
                     <div class="flex items-center">
-                        <div class="p-2 bg-blue-100 rounded-lg">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="p-2 bg-blue-900 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Total Companies</p>
-                            <p class="text-2xl font-semibold text-gray-900">${data.summary.total_companies}</p>
+                            <p class="text-sm font-medium text-gray-300">Total Companies</p>
+                            <p class="text-2xl font-semibold text-white">${data.summary.total_companies}</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
                     <div class="flex items-center">
-                        <div class="p-2 bg-red-100 rounded-lg">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="p-2 bg-red-900 rounded-lg">
+                            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Total tCO₂e</p>
-                            <p class="text-2xl font-semibold text-gray-900">${data.summary.total_tco2e}</p>
+                            <p class="text-sm font-medium text-gray-300">Total tCO₂e</p>
+                            <p class="text-2xl font-semibold text-white">${data.summary.total_tco2e}</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
                     <div class="flex items-center">
-                        <div class="p-2 bg-green-100 rounded-lg">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="p-2 bg-green-900 rounded-lg">
+                            <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Avg Utilization</p>
-                            <p class="text-2xl font-semibold text-gray-900">${data.summary.avg_utilization}%</p>
+                            <p class="text-sm font-medium text-gray-300">Avg Utilization</p>
+                            <p class="text-2xl font-semibold text-white">${data.summary.avg_utilization}%</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700">
                     <div class="flex items-center">
-                        <div class="p-2 bg-yellow-100 rounded-lg">
-                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="p-2 bg-yellow-900 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Avg Data Quality</p>
-                            <p class="text-2xl font-semibold text-gray-900">${data.summary.avg_data_quality}%</p>
+                            <p class="text-sm font-medium text-gray-300">Avg Data Quality</p>
+                            <p class="text-2xl font-semibold text-white">${data.summary.avg_data_quality}%</p>
                         </div>
                     </div>
                 </div>
@@ -225,43 +636,43 @@
             }
 
             tbody.innerHTML = data.leaderboard.map(company => `
-                <tr class="hover:bg-gray-50">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                                company.rank === 1 ? 'bg-yellow-100 text-yellow-800' :
-                                company.rank === 2 ? 'bg-gray-100 text-gray-800' :
-                                company.rank === 3 ? 'bg-orange-100 text-orange-800' :
-                                'bg-blue-100 text-blue-800'
+                                company.rank === 1 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                                company.rank === 2 ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' :
+                                company.rank === 3 ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
                             }">
                                 ${company.rank}
                             </span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${company.company}</div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">${company.company}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                <div class="bg-green-600 h-2 rounded-full" style="width: ${company.green_score}%"></div>
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2 dark:bg-gray-600">
+                                <div class="bg-green-600 h-2 rounded-full dark:bg-green-500" style="width: ${company.green_score}%"></div>
                             </div>
-                            <span class="text-sm text-gray-900">${company.green_score}</span>
+                            <span class="text-sm text-gray-900 dark:text-white">${company.green_score}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${company.tco2e}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${company.tco2e}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         ${company.g_per_1k_tokens ? company.g_per_1k_tokens : 'N/A'}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         ${company.tokens_per_tco2e ? company.tokens_per_tco2e.toLocaleString() : 'N/A'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
-                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                <div class="bg-blue-600 h-2 rounded-full" style="width: ${company.utilization}%"></div>
+                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2 dark:bg-gray-600">
+                                <div class="bg-blue-600 h-2 rounded-full dark:bg-blue-500" style="width: ${company.utilization}%"></div>
                             </div>
-                            <span class="text-sm text-gray-900">${company.utilization}%</span>
+                            <span class="text-sm text-gray-900 dark:text-white">${company.utilization}%</span>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -275,7 +686,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="showCompanyDetails('${company.company}')" 
-                                class="text-blue-600 hover:text-blue-900">
+                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
                             View Details
                         </button>
                     </td>
@@ -283,110 +694,6 @@
             `).join('');
         }
 
-        async function showCompanyDetails(companyName) {
-            try {
-                const response = await fetch(`/api/company/${encodeURIComponent(companyName)}`);
-                const data = await response.json();
-                
-                if (data.error) {
-                    alert('Error loading company details: ' + data.error);
-                    return;
-                }
-
-                document.getElementById('modal-title').textContent = `${companyName} - Detailed Metrics`;
-                
-                document.getElementById('modal-content').innerHTML = `
-                    <div class="space-y-6">
-                        <!-- Ranking Overview -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">🏆 Ranking Overview</h4>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-blue-600">#${data.ranking.overall_rank}</div>
-                                    <div class="text-sm text-gray-600">Overall Rank</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-green-600">${data.ranking.green_score}</div>
-                                    <div class="text-sm text-gray-600">Green Score</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-yellow-600">${data.metrics.data_quality}%</div>
-                                    <div class="text-sm text-gray-600">Data Quality</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Key Metrics -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-white p-4 border rounded-lg">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-3">🌍 Carbon Metrics</h4>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total tCO₂e:</span>
-                                        <span class="font-medium">${data.metrics.tco2e}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total kWh:</span>
-                                        <span class="font-medium">${data.metrics.total_kwh}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">gCO₂/1k tokens:</span>
-                                        <span class="font-medium">${data.metrics.g_per_1k_tokens || 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Tokens/tCO₂e:</span>
-                                        <span class="font-medium">${data.metrics.tokens_per_tco2e ? data.metrics.tokens_per_tco2e.toLocaleString() : 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-4 border rounded-lg">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-3">⚡ Efficiency Metrics</h4>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Utilization:</span>
-                                        <span class="font-medium">${data.metrics.utilization_avg}%</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">PUE Used:</span>
-                                        <span class="font-medium">${data.rollup ? data.rollup.pue_used : 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total Tokens:</span>
-                                        <span class="font-medium">${data.rollup ? data.rollup.total_tokens.toLocaleString() : 'N/A'}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">API Calls:</span>
-                                        <span class="font-medium">${data.rollup ? data.rollup.total_api_calls.toLocaleString() : 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Processing Log -->
-                        <div class="bg-white p-4 border rounded-lg">
-                            <h4 class="text-lg font-semibold text-gray-900 mb-3">🤖 Agent Processing Log</h4>
-                            <div class="space-y-2 max-h-40 overflow-y-auto">
-                                ${data.processing_log.map(log => `
-                                    <div class="flex justify-between items-center text-sm">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="badge badge-blue">${log.stage}</span>
-                                            <span class="text-gray-600">${log.action}</span>
-                                        </div>
-                                        <div class="text-gray-500">${log.timestamp}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('company-modal').classList.remove('hidden');
-            } catch (error) {
-                console.error('Error loading company details:', error);
-                alert('Error loading company details');
-            }
-        }
 
         async function showProcessingStatus() {
             try {
@@ -455,6 +762,178 @@
             document.getElementById('processing-modal').classList.add('hidden');
         }
 
+        function closeUploadModal() {
+            document.getElementById('upload-modal').classList.add('hidden');
+            resetUploadForm();
+        }
+
+        function showFileUpload() {
+            document.getElementById('upload-modal').classList.remove('hidden');
+        }
+
+        function downloadTemplate() {
+            // Create a link to download the sample template
+            const link = document.createElement('a');
+            link.href = '/data/sample_vendor_data.csv';
+            link.download = 'sample_vendor_data.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetUploadForm() {
+            document.getElementById('upload-form').reset();
+            document.getElementById('file-info').classList.add('hidden');
+            document.getElementById('upload-progress').classList.add('hidden');
+            document.getElementById('upload-results').classList.add('hidden');
+            document.getElementById('upload-button').disabled = false;
+            document.getElementById('upload-button').textContent = 'Upload & Process';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file size (10MB limit)
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                alert('File size must be less than 10MB');
+                event.target.value = '';
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['.csv', '.json', '.xlsx', '.xls'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedTypes.includes(fileExtension)) {
+                alert('Please select a CSV, JSON, or Excel file');
+                event.target.value = '';
+                return;
+            }
+
+            // Show file info
+            const fileInfo = document.getElementById('file-info');
+            fileInfo.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="font-medium">${file.name}</span>
+                    <span class="text-gray-500">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                </div>
+            `;
+            fileInfo.classList.remove('hidden');
+
+            // Auto-detect format based on file extension
+            const formatRadios = document.querySelectorAll('input[name="format"]');
+            if (fileExtension === '.csv') {
+                formatRadios[0].checked = true;
+            } else if (fileExtension === '.json') {
+                formatRadios[1].checked = true;
+            } else if (fileExtension === '.xlsx' || fileExtension === '.xls') {
+                formatRadios[2].checked = true;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const fileInput = document.getElementById('file-upload');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file to upload');
+                return;
+            }
+
+            // Show progress bar
+            document.getElementById('upload-progress').classList.remove('hidden');
+            document.getElementById('upload-button').disabled = true;
+            document.getElementById('upload-button').textContent = 'Uploading...';
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show success results
+                    showUploadResults(result, true);
+                    
+                    // Refresh the dashboard data
+                    setTimeout(() => {
+                        refreshData();
+                    }, 1000);
+                } else {
+                    // Show error results
+                    showUploadResults(result, false);
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                showUploadResults({
+                    error: 'Upload failed: ' + error.message
+                }, false);
+            } finally {
+                document.getElementById('upload-button').disabled = false;
+                document.getElementById('upload-button').textContent = 'Upload & Process';
+            }
+        });
+
+        function showUploadResults(result, success) {
+            const resultsDiv = document.getElementById('upload-results');
+            
+            if (success) {
+                resultsDiv.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-green-800">Upload Successful!</h3>
+                                <div class="mt-2 text-sm text-green-700">
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li>Records processed: ${result.records_processed || 0}</li>
+                                        <li>Companies added: ${result.companies_added || 0}</li>
+                                        <li>Processing time: ${result.processing_time || 'N/A'}</li>
+                                        ${result.warnings && result.warnings.length > 0 ? 
+                                            `<li>Warnings: ${result.warnings.length}</li>` : ''}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800">Upload Failed</h3>
+                                <div class="mt-2 text-sm text-red-700">
+                                    <p>${result.error || 'An unknown error occurred'}</p>
+                                    ${result.details ? `<p class="mt-1 text-xs">${result.details}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsDiv.classList.remove('hidden');
+        }
+
         // Close modals when clicking outside
         document.getElementById('company-modal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -467,6 +946,707 @@
                 closeProcessingModal();
             }
         });
+
+        document.getElementById('upload-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUploadModal();
+            }
+        });
+
+        // Chat Interface Functions
+        function showChatInterface() {
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-input').focus();
+        }
+
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function askQuickQuestion(question) {
+            document.getElementById('chat-input').value = question;
+            sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message to chat
+            addMessageToChat(message, 'user');
+            input.value = '';
+
+            // Disable send button and show loading
+            const sendBtn = document.getElementById('chat-send-btn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            try {
+                // Get current data context
+                const dataContext = await getDataContext();
+                
+                // Send to backend
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        context: dataContext
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get AI response');
+                }
+
+                const data = await response.json();
+                addMessageToChat(data.response, 'ai');
+                
+            } catch (error) {
+                console.error('Chat error:', error);
+                addMessageToChat('Sorry, I encountered an error. Please try again.', 'ai');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send';
+            }
+        }
+
+        function addMessageToChat(message, sender) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                messageDiv.className = 'flex items-start space-x-3 justify-end';
+                messageDiv.innerHTML = `
+                    <div class="bg-purple-600 rounded-lg p-3 max-w-3xl">
+                        <p class="text-white text-sm">${message}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">You</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.className = 'flex items-start space-x-3';
+                messageDiv.innerHTML = `
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">AI</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-700 rounded-lg p-3 max-w-3xl">
+                        <p class="text-white text-sm">${message}</p>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function getDataContext() {
+            try {
+                const [leaderboardResponse, summaryResponse] = await Promise.all([
+                    fetch('/api/leaderboard'),
+                    fetch('/api/metrics/summary')
+                ]);
+
+                const leaderboard = await leaderboardResponse.json();
+                const summary = await summaryResponse.json();
+
+                return {
+                    leaderboard: leaderboard.leaderboard,
+                    summary: summary.summary,
+                    bestPerformers: summary.best_performers,
+                    worstPerformers: summary.worst_performers
+                };
+            } catch (error) {
+                console.error('Error getting data context:', error);
+                return null;
+            }
+        }
+
+        // Close chat modal when clicking outside
+        document.getElementById('chat-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeChatModal();
+            }
+        });
+        
+        function showDataCleaner() {
+            // Show data cleaner upload modal
+            const modal = document.getElementById('dataCleanerModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                resetProgressBar();
+            }
+        }
+        
+        function closeDataCleanerModal() {
+            const modal = document.getElementById('dataCleanerModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        function resetProgressBar() {
+            const progressContainer = document.getElementById('progressContainer');
+            const processStatusContainer = document.getElementById('processStatusContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressLabel = document.getElementById('progressLabel');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            progressContainer.classList.add('hidden');
+            processStatusContainer.classList.add('hidden');
+            progressBar.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressLabel.textContent = 'Ready';
+            progressDetails.textContent = 'Ready to process data...';
+            
+            // Reset all status indicators
+            resetStatusIndicators();
+        }
+
+        function resetStatusIndicators() {
+            const statuses = ['statusUpload', 'statusParse', 'statusClean', 'statusRank'];
+            statuses.forEach(statusId => {
+                const statusDiv = document.getElementById(statusId);
+                if (statusDiv) {
+                    const circle = statusDiv.querySelector('div');
+                    circle.className = 'bg-gray-600 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2';
+                }
+            });
+        }
+
+        function updateStatusIndicator(step, status) {
+            const statusDiv = document.getElementById(step);
+            if (statusDiv) {
+                const circle = statusDiv.querySelector('div');
+                switch(status) {
+                    case 'active':
+                        circle.className = 'bg-orange-500 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2 animate-pulse';
+                        break;
+                    case 'completed':
+                        circle.className = 'bg-green-500 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2';
+                        circle.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>';
+                        break;
+                    case 'error':
+                        circle.className = 'bg-red-500 rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-2';
+                        circle.innerHTML = '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
+                        break;
+                }
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const fileInfo = document.getElementById('fileInfo');
+                const fileName = document.getElementById('fileName');
+                const fileSize = document.getElementById('fileSize');
+                const uploadButton = document.getElementById('uploadButton');
+                
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.classList.remove('hidden');
+                uploadButton.disabled = false;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function uploadMessyData() {
+            const fileInput = document.getElementById('messyDataFile');
+            const file = fileInput.files[0];
+            const addToRanking = document.getElementById('addToRanking').checked;
+            
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+
+            const statusDiv = document.getElementById('dataCleanerStatus');
+            const progressContainer = document.getElementById('progressContainer');
+            const processStatusContainer = document.getElementById('processStatusContainer');
+            const uploadButton = document.getElementById('uploadButton');
+            
+            // Show progress bar and status indicators
+            progressContainer.classList.remove('hidden');
+            processStatusContainer.classList.remove('hidden');
+            uploadButton.disabled = true;
+            
+            // Reset status indicators
+            resetStatusIndicators();
+            
+            try {
+                // Step 1: Upload
+                updateStatusIndicator('statusUpload', 'active');
+                updateProgress(10, 'Uploading File', 'Sending file to server...');
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('add_to_ranking', addToRanking);
+                
+                // Step 2: Parse
+                updateStatusIndicator('statusUpload', 'completed');
+                updateStatusIndicator('statusParse', 'active');
+                updateProgress(30, 'Processing File', 'Parsing file content...');
+                
+                const response = await fetch('/api/upload-messy-data', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Step 3: Clean
+                updateStatusIndicator('statusParse', 'completed');
+                updateStatusIndicator('statusClean', 'active');
+                updateProgress(70, 'Cleaning Data', 'LLM processing and normalizing...');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Step 4: Rank (if requested)
+                    updateStatusIndicator('statusClean', 'completed');
+                    if (addToRanking && data.ranking_updated) {
+                        updateStatusIndicator('statusRank', 'active');
+                        updateProgress(90, 'Adding to Rankings', 'Processing through carbon pipeline...');
+                        
+                        setTimeout(() => {
+                            updateStatusIndicator('statusRank', 'completed');
+                            updateProgress(100, 'Complete!', 'Data processed and added to rankings!');
+                        }, 1000);
+                    } else {
+                        updateProgress(100, 'Complete!', 'Data processed successfully!');
+                    }
+                    
+                    statusDiv.innerHTML = '<div class="text-green-600">Data Processing Complete!</div>';
+                    displayProcessingResults(data);
+                    
+                    // Automatically refresh the main dashboard if added to ranking
+                    if (addToRanking && data.ranking_updated) {
+                        setTimeout(() => {
+                            refreshData();
+                            statusDiv.innerHTML = '<div class="text-green-600">Data Processing Complete! Dashboard updated.</div>';
+                        }, 2000);
+                    }
+                } else {
+                    updateStatusIndicator('statusClean', 'error');
+                    updateProgress(0, 'Failed', 'Data processing failed');
+                    statusDiv.innerHTML = '<div class="text-red-600">Processing Failed</div>';
+                }
+                
+            } catch (error) {
+                console.error('Error processing messy data:', error);
+                updateStatusIndicator('statusParse', 'error');
+                updateProgress(0, 'Error', 'Processing encountered an error');
+                statusDiv.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`;
+            } finally {
+                uploadButton.disabled = false;
+            }
+        }
+
+        function displayProcessingResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            const rankingStatus = data.ranking_updated ? 
+                '<div class="bg-green-800 p-3 rounded mb-4"><div class="flex items-center"><svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg><span class="text-green-400 font-semibold">Added to Ranking Pool</span></div></div>' :
+                '<div class="bg-gray-800 p-3 rounded mb-4"><div class="flex items-center"><svg class="w-5 h-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg><span class="text-gray-400">Not added to ranking pool</span></div></div>';
+            
+            const html = `
+                <div class="space-y-4">
+                    ${rankingStatus}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-800 p-4 rounded">
+                            <h5 class="font-semibold text-green-400 mb-2">Records Processed</h5>
+                            <div class="text-2xl font-bold text-white">${data.records_processed}</div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded">
+                            <h5 class="font-semibold text-blue-400 mb-2">Success Rate</h5>
+                            <div class="text-2xl font-bold text-white">${(data.cleaning_stats.success_rate * 100).toFixed(1)}%</div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded">
+                            <h5 class="font-semibold text-purple-400 mb-2">Avg Confidence</h5>
+                            <div class="text-2xl font-bold text-white">${data.cleaning_stats.average_confidence}%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-800 p-4 rounded">
+                        <h5 class="font-semibold text-white mb-2">Clean CSV Output</h5>
+                        <pre class="text-gray-300 text-xs bg-gray-900 p-3 rounded overflow-x-auto">${data.clean_csv}</pre>
+                    </div>
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+            resultsSection.classList.remove('hidden');
+        }
+        
+        function updateProgress(percent, label, details) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressLabel = document.getElementById('progressLabel');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = percent + '%';
+            progressPercent.textContent = percent + '%';
+            progressLabel.textContent = label;
+            progressDetails.textContent = details;
+        }
+        
+        async function runDataTransformation() {
+            const statusDiv = document.getElementById('messyDataStatus');
+            const resultsDiv = document.getElementById('messyDataResults');
+            
+            statusDiv.innerHTML = '<div class="text-blue-600">Starting data transformation...</div>';
+            resultsDiv.innerHTML = '';
+            
+            // Show progress bar
+            updateProgress(10, 'Initializing', 'Setting up data transformation pipeline...');
+            
+            try {
+                // Simulate progress updates
+                setTimeout(() => updateProgress(25, 'Loading Scenarios', 'Preparing messy data scenarios...'), 500);
+                setTimeout(() => updateProgress(40, 'Processing AWS Data', 'Cleaning AWS CloudWatch logs...'), 1000);
+                setTimeout(() => updateProgress(55, 'Processing Azure Data', 'Normalizing Azure Monitor metrics...'), 1500);
+                setTimeout(() => updateProgress(70, 'Processing GCP Data', 'Standardizing Google Cloud logs...'), 2000);
+                setTimeout(() => updateProgress(85, 'Resolving Conflicts', 'Handling conflicting data sources...'), 2500);
+                setTimeout(() => updateProgress(95, 'Generating CSV', 'Creating clean CSV format...'), 3000);
+                
+                const response = await fetch('/api/messy-data/demo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateProgress(100, 'Complete!', 'Data transformation successful!');
+                    statusDiv.innerHTML = '<div class="text-green-600">Data Transformation Complete!</div>';
+                    displayTransformationResults(data);
+                    
+                    // Automatically refresh the main dashboard
+                    setTimeout(() => {
+                        refreshData();
+                        statusDiv.innerHTML = '<div class="text-green-600">Data Transformation Complete! Dashboard updated.</div>';
+                    }, 2000);
+                } else {
+                    updateProgress(0, 'Failed', 'Data transformation failed');
+                    statusDiv.innerHTML = '<div class="text-red-600">Transformation Failed</div>';
+                }
+                
+            } catch (error) {
+                console.error('Error running data transformation:', error);
+                updateProgress(0, 'Error', 'Transformation encountered an error');
+                statusDiv.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`;
+            }
+        }
+        
+        function displayTransformationResults(data) {
+            const resultsDiv = document.getElementById('messyDataResults');
+            
+            const summary = data.summary;
+            const results = data.results;
+            
+            let html = `
+                <div class="bg-gray-800 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-white mb-4">Data Transformation Results</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-700 p-4 rounded">
+                            <div class="text-2xl font-bold text-green-400">${summary.successful_scenarios}</div>
+                            <div class="text-gray-300">Data Sources Cleaned</div>
+                        </div>
+                        <div class="bg-gray-700 p-4 rounded">
+                            <div class="text-2xl font-bold text-blue-400">${(summary.success_rate * 100).toFixed(1)}%</div>
+                            <div class="text-gray-300">Transformation Success</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-white mb-3">Data Source Processing</h4>
+                        <div class="space-y-2">
+            `;
+            
+            for (const [scenario, result] of Object.entries(results)) {
+                if (result && result.cleaning_stats) {
+                    const stats = result.cleaning_stats;
+                    const successRate = (stats.success_rate * 100).toFixed(1);
+                    const confidence = stats.average_confidence.toFixed(1);
+                    
+                    html += `
+                        <div class="flex justify-between items-center bg-gray-700 p-3 rounded">
+                            <span class="text-gray-300">${scenario.replace('_', ' ').toUpperCase()}</span>
+                            <div class="text-right">
+                                <div class="text-green-400 font-semibold">${successRate}% cleaned</div>
+                                <div class="text-blue-400 text-sm">${confidence}% confidence</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="flex justify-between items-center bg-gray-700 p-3 rounded">
+                            <span class="text-gray-300">${scenario.replace('_', ' ').toUpperCase()}</span>
+                            <div class="text-red-400 font-semibold">Failed</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            html += `
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded mb-4">
+                        <h4 class="text-lg font-semibold text-white mb-3">Complete Data Pipeline</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <h5 class="font-semibold text-orange-400 mb-2">Messy Input</h5>
+                                <ul class="text-gray-300 space-y-1 text-sm">
+                                    <li>• AWS CloudWatch logs</li>
+                                    <li>• Azure Monitor metrics</li>
+                                    <li>• GCP Operations logs</li>
+                                    <li>• Inconsistent formats</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-blue-400 mb-2">LLM Cleaning</h5>
+                                <ul class="text-gray-300 space-y-1 text-sm">
+                                    <li>• Claude AI processing</li>
+                                    <li>• Data normalization</li>
+                                    <li>• Conflict resolution</li>
+                                    <li>• Quality validation</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-green-400 mb-2">Clean CSV</h5>
+                                <ul class="text-gray-300 space-y-1 text-sm">
+                                    <li>• Standardized format</li>
+                                    <li>• Complete data</li>
+                                    <li>• Ready for analysis</li>
+                                    <li>• Carbon rankings</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded mb-4">
+                        <h4 class="text-lg font-semibold text-white mb-3">Sample Data Transformation</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="font-semibold text-orange-400 mb-2">Before (Messy)</h5>
+                                <div class="bg-gray-800 p-3 rounded text-xs text-gray-300 font-mono">
+                                    company: "amazon"<br>
+                                    timestamp: "December 26, 2024"<br>
+                                    region: "us-east-1a"<br>
+                                    gpu_hours_raw: "1500 GPU hours"<br>
+                                    energy_consumption: "12000 KWH"<br>
+                                    utilization_percent: "85%"<br>
+                                    pue_factor: "PUE: 1.2"
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="font-semibold text-green-400 mb-2">After (Clean CSV)</h5>
+                                <div class="bg-gray-800 p-3 rounded text-xs text-gray-300 font-mono">
+                                    company,month,region,gpu_hours,energy_kwh,utilization,pue<br>
+                                    Amazon,2024-12,us-east-1,1500,12000,85,1.2
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded">
+                        <h4 class="text-lg font-semibold text-white mb-3">Ready for Carbon Analysis</h4>
+                        <p class="text-gray-300 text-sm">
+                            The cleaned data is now in the proper CSV format and ready to be processed through our 
+                            carbon efficiency analysis pipeline to generate green rankings and environmental insights.
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        async function resetLeaderboard() {
+            if (confirm('Are you sure you want to reset the leaderboard? This will clear all data.')) {
+                try {
+                    const response = await fetch('/api/reset', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        alert('Leaderboard reset successfully!');
+                        // Refresh the dashboard
+                        console.log('Refreshing dashboard after reset...');
+                        await refreshData();
+                        console.log('Dashboard refreshed');
+                    } else {
+                        alert(`Error resetting leaderboard: ${data.message || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error resetting leaderboard:', error);
+                    alert(`Error resetting leaderboard: ${error.message}`);
+                }
+            }
+        }
+        
+        // Fix detailed metrics display
+        async function showCompanyDetails(companyName) {
+            try {
+                const response = await fetch(`/api/company/${encodeURIComponent(companyName)}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error loading company details: ' + data.error);
+                    return;
+                }
+
+                document.getElementById('modal-title').textContent = `${companyName} - Detailed Metrics`;
+                
+                // Ensure we have the data structure
+                const ranking = data.ranking || {};
+                const metrics = data.metrics || {};
+                const rollup = data.rollup || {};
+                
+                document.getElementById('modal-content').innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Ranking Overview -->
+                        <div class="bg-gray-700 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-white mb-3">Ranking Overview</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-blue-400">#${ranking.overall_rank || 'N/A'}</div>
+                                    <div class="text-sm text-gray-300">Overall Rank</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-400">${ranking.green_score || 'N/A'}</div>
+                                    <div class="text-sm text-gray-300">Green Score</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-yellow-400">${metrics.data_quality || 'N/A'}%</div>
+                                    <div class="text-sm text-gray-300">Data Quality</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Metrics -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gray-700 p-4 border border-gray-600 rounded-lg">
+                                <h4 class="text-lg font-semibold text-white mb-3">Carbon Metrics</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">Total tCO₂e:</span>
+                                        <span class="font-medium text-white">${metrics.tco2e || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">Total kWh:</span>
+                                        <span class="font-medium text-white">${metrics.total_kwh || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">gCO₂/1k tokens:</span>
+                                        <span class="font-medium text-white">${metrics.g_per_1k_tokens || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">Tokens per tCO₂e:</span>
+                                        <span class="font-medium text-white">${metrics.tokens_per_tco2e || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-700 p-4 border border-gray-600 rounded-lg">
+                                <h4 class="text-lg font-semibold text-white mb-3">Efficiency Metrics</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">Avg Utilization:</span>
+                                        <span class="font-medium text-white">${metrics.utilization_avg || 'N/A'}%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">Total Tokens:</span>
+                                        <span class="font-medium text-white">${rollup.total_tokens || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">API Calls:</span>
+                                        <span class="font-medium text-white">${rollup.total_api_calls || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-300">Data Quality:</span>
+                                        <span class="font-medium text-white">${metrics.data_quality || 'N/A'}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ranking Details -->
+                        <div class="bg-gray-700 p-4 border border-gray-600 rounded-lg">
+                            <h4 class="text-lg font-semibold text-white mb-3">Ranking Details</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-blue-400">#${ranking.tco2e_rank || 'N/A'}</div>
+                                    <div class="text-sm text-gray-300">CO₂ Rank</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-green-400">#${ranking.intensity_rank || 'N/A'}</div>
+                                    <div class="text-sm text-gray-300">Intensity Rank</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-yellow-400">#${ranking.efficiency_rank || 'N/A'}</div>
+                                    <div class="text-sm text-gray-300">Efficiency Rank</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-xl font-bold text-purple-400">#${ranking.utilization_rank || 'N/A'}</div>
+                                    <div class="text-sm text-gray-300">Utilization Rank</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('company-modal').classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error loading company details:', error);
+                alert('Error loading company details');
+            }
+        }
+
+        // Dark mode is permanently enabled - no toggle functions needed
     </script>
 </body>
 </html>
